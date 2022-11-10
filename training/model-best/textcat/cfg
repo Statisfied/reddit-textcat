@@ -1,0 +1,13 @@
+{
+  "labels":[
+    "Depression",
+    "PTSD",
+    "OCD",
+    "Eating Disorder",
+    "Bipolar Disorder",
+    "BPD",
+    "ADHD"
+  ],
+  "threshold":0.5,
+  "positive_label":null
+}

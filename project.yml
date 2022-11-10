@@ -1,0 +1,96 @@
+title: "Trigger Warning Prediction Model (Text Classification)"
+description: "A textcat_multilabel project for spaCy v3 to predict the mental health issue label associated with each reddit post."
+# Variables can be referenced across the project.yml using ${vars.var_name}
+vars:
+  name: "textcat_reddit"
+  # Supported languages: all except ja, ko, th, vi, and zh, which would require
+  # custom tokenizer settings in config.cfg
+  lang: "en"
+  # Set your GPU ID, -1 is CPU
+  gpu_id: -1
+  version: "0.0.0"
+  train: "reddit-train.jsonl"
+  dev: "reddit-dev.jsonl"
+  test: "reddit-test.jsonl"
+  config: "config.cfg"
+
+# These are the directories that the project needs. The project CLI will make
+# sure that they always exist.
+directories: ["assets", "corpus", "configs", "training", "scripts", "packages"]
+
+# Assets that should be downloaded or available in the directory. We're shipping
+# them with the project, so they won't have to be downloaded.
+assets:
+  - dest: "assets/${vars.train}"
+    description: "Training data from reddit subcommunities"
+  - dest: "assets/${vars.dev}"
+    description: "Development data reddit subcommunities"
+
+# Workflows are sequences of commands (see below) executed in order. You can
+# run them via "spacy project run [workflow]". If a commands's inputs/outputs
+# haven't changed, it won't be re-run.
+workflows:
+  all:
+    - convert
+    - train
+    - evaluate
+    - package
+
+# Project commands, specified in a style similar to CI config files (e.g. Azure
+# pipelines). The name is the command name that lets you trigger the command
+# via "spacy project run [command] [path]". The help message is optional and
+# shown when executing "spacy project run [optional command] [path] --help".
+commands:
+  - name: "convert"
+    help: "Convert the data to spaCy's binary format"
+    script:
+      - "python scripts/convert.py ${vars.lang} assets/${vars.train} corpus/train.spacy"
+      - "python scripts/convert.py ${vars.lang} assets/${vars.dev} corpus/dev.spacy"
+      - "python scripts/convert.py ${vars.lang} assets/${vars.test} corpus/test.spacy"
+    deps:
+      - "assets/${vars.train}"
+      - "assets/${vars.dev}"
+      - "assets/${vars.test}"
+      - "scripts/convert.py"
+    outputs:
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+      - "corpus/test.spacy"
+
+  - name: "train"
+    help: "Train the textcat model"
+    script:
+      - "python -m spacy train configs/${vars.config} --output training/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --nlp.lang ${vars.lang} --gpu-id ${vars.gpu_id}"
+    deps:
+      - "configs/${vars.config}"
+      - "corpus/train.spacy"
+      - "corpus/dev.spacy"
+    outputs:
+      - "training/model-best"
+
+  - name: "evaluate"
+    help: "Evaluate the model and export metrics"
+    script:
+      - "python -m spacy evaluate training/model-best corpus/test.spacy --output training/metrics.json"
+    deps:
+      - "corpus/test.spacy"
+      - "training/model-best"
+    outputs:
+      - "training/metrics.json"
+
+  - name: package
+    help: "Package the trained model as a pip package"
+    script:
+      - "python -m spacy package training/model-best packages --name ${vars.name} --version ${vars.version} --force"
+    deps:
+      - "training/model-best"
+    outputs_no_cache:
+      - "packages/${vars.lang}_${vars.name}-${vars.version}/dist/${vars.lang}_${vars.name}-${vars.version}.tar.gz"
+
+  - name: visualize-model
+    help: Visualize the model's output interactively using Streamlit
+    script:
+      - "streamlit run scripts/visualize_model.py training/model-best \"I started  binging (eating normally) in march due to an anxiety problem, and i havent been able to stop. i gained weight and im still thin, but definitely not as thin as before. i try to restrict daily and every day for months i have failed. i feel like im semi addicted to eating and fast food too. it just seems so difficult to start losing weight again:( i started feeling fine with where i was at until i saw old photos of myself, old diary entries, and looked up my bmi. this is just so stressful and i have nobody to talk to about it. i also went off of anti depressants and i feel like its harder to restrict off of them. just a quick vent\""
+    deps:
+      - "scripts/visualize_model.py"
+      - "training/model-best"

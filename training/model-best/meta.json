@@ -1,0 +1,89 @@
+{
+  "lang":"en",
+  "name":"pipeline",
+  "version":"0.0.0",
+  "spacy_version":">=3.4.2,<3.5.0",
+  "description":"",
+  "author":"",
+  "email":"",
+  "url":"",
+  "license":"",
+  "spacy_git_version":"3d0e89536",
+  "vectors":{
+    "width":0,
+    "vectors":0,
+    "keys":0,
+    "name":null,
+    "mode":"default"
+  },
+  "labels":{
+    "textcat":[
+      "Depression",
+      "PTSD",
+      "OCD",
+      "Eating Disorder",
+      "Bipolar Disorder",
+      "BPD",
+      "ADHD"
+    ]
+  },
+  "pipeline":[
+    "textcat"
+  ],
+  "components":[
+    "textcat"
+  ],
+  "disabled":[
+
+  ],
+  "performance":{
+    "cats_score":0.7770885888,
+    "cats_score_desc":"macro F",
+    "cats_micro_p":0.8601719453,
+    "cats_micro_r":0.722409278,
+    "cats_micro_f":0.7852945363,
+    "cats_macro_p":0.8567828121,
+    "cats_macro_r":0.7155520457,
+    "cats_macro_f":0.7770885888,
+    "cats_macro_auc":0.9548199982,
+    "cats_f_per_type":{
+      "Depression":{
+        "p":0.7053571429,
+        "r":0.6556016598,
+        "f":0.6795698925
+      },
+      "PTSD":{
+        "p":0.8712772998,
+        "r":0.6723697651,
+        "f":0.7590083598
+      },
+      "OCD":{
+        "p":0.9368726889,
+        "r":0.794578853,
+        "f":0.8598787879
+      },
+      "Eating Disorder":{
+        "p":0.9109478999,
+        "r":0.8979638009,
+        "f":0.9044092515
+      },
+      "Bipolar Disorder":{
+        "p":0.8720626632,
+        "r":0.6221670289,
+        "f":0.7262185178
+      },
+      "BPD":{
+        "p":0.8327880771,
+        "r":0.5919896641,
+        "f":0.6920404773
+      },
+      "ADHD":{
+        "p":0.868173913,
+        "r":0.7741935484,
+        "f":0.8184948352
+      }
+    },
+    "cats_macro_auc_per_type":0.0,
+    "textcat_loss":9.2368765061
+  }
+}
